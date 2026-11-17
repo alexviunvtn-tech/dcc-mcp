@@ -15,6 +15,24 @@ What the core gives every plugin:
 - **Sessions.** Starts the program or attaches to a running one, notices when it is gone and restarts it on the next call.
 - **A fixed tool list.** The model sees about ten tools. New operations are reached through `run_operation`, so the list does not grow with every plugin.
 
+## Why a core?
+
+A core pays off when you use more than one program, or the same steps again and again. For one program used now and then, a plain MCP server for that program is simpler.
+
+What it buys you:
+
+- **Pipelines across programs.** One recipe can run a mesh through a sculpting tool, a UV tool and a painting tool. Each step reads the asset's latest version and writes the next one, so the model does not pass file paths between separate servers.
+- **The same result every time.** A recipe is a fixed list of steps with parameters, so twenty files get the same treatment instead of whatever the model improvises for each.
+- **History you can roll back.** The original is never overwritten; every step is a new version with its parameters and metrics in the log.
+- **Plumbing written once.** Parameter checks, restarting a crashed program, refusing a second call while one runs, and readable errors live in the core, so a new plugin is a connection plus thin operations.
+
+What it costs:
+
+- **One process.** A broken plugin or recipe can stop the server for every program.
+- **One more step for the model.** Most operations go through `run_operation`, so the model has to look them up with `list_operations` and `describe_operation` first.
+- **One Python for all plugins.** If one program's library needs an older Python, every plugin runs on it.
+- **Disk space.** Each version is a full copy of the file.
+
 ## Requirements
 
 - Python 3.11 or newer
