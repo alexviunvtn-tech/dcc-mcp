@@ -9,7 +9,7 @@ BLANK = Path(__file__).resolve().parent.parent / "blank.png"
 SPEC = OpSpec(
     key="krita.new", backend="krita", run=forward("new"), needs=frozenset({"ui"}),
     summary=("New canvas in the Krita window as the working document. To keep it, save it into an asset: "
-             f"import_asset(name, {str(BLANK)!r}) first, then krita.save on it. "
+             f"import_asset(name, '{BLANK}') first, then krita.save on it. "
              "Color models/depths/profiles: krita.catalog."),
     params_schema={"type": "object", "required": ["width", "height"], "additionalProperties": False,
                    "properties": {
