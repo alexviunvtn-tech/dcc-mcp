@@ -2,7 +2,7 @@
 
 One [MCP](https://modelcontextprotocol.io) server for DCC programs. The core knows nothing about any program: each program is a plugin in `plugins/`, and new operations and recipes are added as files, without touching the core.
 
-The first plugin drives **Krita** through a small bridge that runs inside an open Krita window. Tested with Krita 5.3.2.1 on Windows.
+The first plugin drives **Krita** through a small bridge that runs inside an open Krita window. Tested with Krita 5.3.2.1 and 5.3.4.1 on Windows.
 
 ```
 MCP client ──stdio──> dcc_mcp (core) ──> plugins/krita/backend.py ──TCP 127.0.0.1──> dccmcp_bridge (inside Krita) ──> Krita Python API
