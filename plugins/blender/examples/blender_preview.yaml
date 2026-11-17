@@ -1,0 +1,15 @@
+# Mesh file in, then: check the polycount, keep a .blend, export a GLB, render a preview PNG.
+# Each step reads the asset's latest version, so the PNG comes last: nothing can import a PNG.
+contract: 1
+params:
+  max_triangles: 200000
+  size: 1024
+steps:
+  - check: blender.info
+    params: {max_triangles: "{max_triangles}"}
+    on_fail: warn
+  - op: blender.save
+  - op: blender.export
+    params: {format: glb}
+  - op: blender.render
+    params: {width: "{size}", height: "{size}"}

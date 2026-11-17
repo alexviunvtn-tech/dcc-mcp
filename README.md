@@ -2,10 +2,14 @@
 
 One [MCP](https://modelcontextprotocol.io) server for DCC programs. The core knows nothing about any program: each program is a plugin in `plugins/`, and new operations and recipes are added as files, without touching the core.
 
-The first plugin drives **Krita** through a small bridge that runs inside an open Krita window. Tested with Krita 5.3.2.1 and 5.3.4.1 on Windows.
+Two plugins ship with it:
+
+- **Krita** — through a small bridge that runs inside an open Krita window. Tested with Krita 5.3.2.1 and 5.3.4.1 on Windows.
+- **Blender** — in the background: every call is its own `blender -b`, so nothing needs installing in Blender. Tested with Blender 5.2.2 LTS on Windows: import and export in all seven formats, renders in Workbench and EEVEE.
 
 ```
-MCP client ──stdio──> dcc_mcp (core) ──> plugins/krita/backend.py ──TCP 127.0.0.1──> dccmcp_bridge (inside Krita) ──> Krita Python API
+MCP client ──stdio──> dcc_mcp (core) ─┬─> plugins/krita/backend.py ──TCP 127.0.0.1──> dccmcp_bridge (inside Krita) ──> Krita Python API
+                                      └─> plugins/blender/backend.py ──blender -b --python runner.py──> bpy
 ```
 
 What the core gives every plugin:
@@ -36,7 +40,8 @@ What it costs:
 ## Requirements
 
 - Python 3.11 or newer
-- Krita 5.x with Python plugins enabled (the default build has them)
+- Krita 5.x with Python plugins enabled (the default build has them), for the Krita plugin
+- Blender 4.2 or newer, for the Blender plugin
 - An MCP client, for example Claude Desktop
 
 ## Install
@@ -83,7 +88,7 @@ Or as a recipe: `run_recipe(name="krita_export", asset="test")` opens the asset 
 
 ## Tools
 
-`list_operations`, `describe_operation`, `run_operation`, `list_recipes`, `run_recipe`, `start_session`, `stop_session`, `session_status`, `import_asset`, `asset_history`, plus a plugin's most used operations as their own tools (`krita_open`, `krita_action`, `krita_save`).
+`list_operations`, `describe_operation`, `run_operation`, `list_recipes`, `run_recipe`, `start_session`, `stop_session`, `session_status`, `import_asset`, `asset_history`, plus a plugin's most used operations as their own tools (`krita_open`, `krita_action`, `krita_save`, `blender_info`, `blender_export`, `blender_render`).
 
 ## Krita operations
 
@@ -101,10 +106,28 @@ Or as a recipe: `run_recipe(name="krita_export", asset="test")` opens the asset 
 
 For a new canvas with nothing to import, import `plugins/krita/blank.png` (1×1) as the asset, run `krita.new`, then `krita.save` on that asset.
 
+## Blender operations
+
+Each step reads the asset's current version: a `.blend` opens; `fbx`, `obj`, `glb`/`gltf`, `usd`, `stl` and `ply` are imported into an empty scene. Set `[blender] exe` in `dcc_mcp.toml`; nothing else to install.
+
+| Key | What it does |
+| --- | --- |
+| `blender.info` | Objects with type, size, vertices, faces, triangles, UV layers, materials, plus totals. A check: fails above `max_triangles` |
+| `blender.save` | Save as a `.blend`: the next version |
+| `blender.export` | Export the next version: `glb` (default), `gltf`, `fbx`, `obj`, `usd`, `stl`, `ply`. `options` go to the exporter as keyword arguments |
+| `blender.render` | PNG preview: the next version. Without a camera one is placed to see every mesh, plus a sun if there is no light. Workbench by default; `BLENDER_EEVEE` or `CYCLES` on request |
+| `blender.python` | Any bpy script, then the scene is saved as the next `.blend`. Off unless `allow_raw = true` |
+
+![Suzanne rendered by blender.render with EEVEE](docs/blender_render_example.png)
+
+*`blender.render` with `engine: BLENDER_EEVEE` on a scene with no camera or light: both were placed automatically.*
+
+Recipe example: `plugins/blender/examples/blender_preview.yaml` — polycount check, `.blend`, GLB, preview PNG. Copy it into `recipes/` to use it. A rendered PNG is a version too, and Blender cannot open it, so put renders last or run the next step on `name@vNNN`.
+
 ## Security
 
 - The bridge listens on `127.0.0.1` only, on a port the OS picks. Every request must carry a token that Krita writes to `krita/dccmcp_bridge.json` in your user profile; it changes on every Krita start.
-- `krita.python` runs any code the model sends. It is off by default; turn it on in `dcc_mcp.toml` only if you want that.
+- `krita.python` and `blender.python` run any code the model sends. They are off by default; turn them on in `dcc_mcp.toml` only if you want that.
 - Asset names are checked so files stay inside the work folder.
 
 ## Extending
@@ -116,6 +139,7 @@ For a new canvas with nothing to import, import `plugins/krita/blank.png` (1×1)
 ## Limits
 
 - Krita works only with an open window (`live`); there is no headless mode yet.
+- Blender works only in the background: no live window yet, and every call starts Blender again, which costs a few seconds.
 - The model gets JSON back, not a picture of the canvas.
 - Windows is the tested platform. The code has Linux paths for the bridge and installer, but they are untested.
 
