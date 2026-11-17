@@ -24,7 +24,7 @@ What the core gives every plugin:
 ## Install
 
 ```
-git clone https://github.com/<you>/dcc-mcp
+git clone https://github.com/alexviunvtn-tech/dcc-mcp
 cd dcc-mcp
 python -m pip install mcp pyyaml jsonschema pytest
 python -m pytest
