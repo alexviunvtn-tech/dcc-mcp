@@ -1,0 +1,10 @@
+# Open the asset in Krita, keep a layered .kra and a flat .png as the next two versions.
+contract: 1
+params:
+  format: png
+steps:
+  - op: krita.open
+  - op: krita.save
+    params: {format: kra}
+  - op: krita.save
+    params: {format: "{format}"}

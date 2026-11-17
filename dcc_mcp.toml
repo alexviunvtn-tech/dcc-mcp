@@ -1,0 +1,10 @@
+plugins = ["krita"]
+recipes_dir = "recipes"
+work_dir = "work"            # imported files and their versions; or set DCC_MCP_WORK_DIR
+
+[krita]
+exe = 'C:\Program Files\Krita (x64)\bin\krita.exe'   # Linux/macOS: path to your krita binary
+default_mode = "live"        # only live for now: the bridge runs inside an open Krita window
+allow_raw = false            # true enables krita.python: any Python inside Krita, full API
+# start_timeout = 90         # seconds to wait for Krita and the bridge after launching
+# call_timeout = 300         # seconds one command may take (big filters)

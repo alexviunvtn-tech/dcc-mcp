@@ -1,0 +1,12 @@
+contract: 1
+params: {n: 3, soft: warn, hard: fail}
+steps:
+  - op: fake.touch
+    params: {n: "{n}"}
+  - check: fake.check
+    params: {result: "{soft}"}
+    on_fail: warn
+  - check: fake.check
+    params: {result: "{hard}"}
+    on_fail: stop
+  - op: fake.touch
