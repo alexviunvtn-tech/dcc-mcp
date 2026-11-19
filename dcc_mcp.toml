@@ -1,4 +1,4 @@
-plugins = ["krita", "blender"]
+plugins = ["krita", "blender", "capcut"]
 recipes_dir = "recipes"
 work_dir = "work"            # imported files and their versions; or set DCC_MCP_WORK_DIR
 
@@ -14,3 +14,8 @@ exe = 'C:\Program Files\Blender Foundation\Blender 5.2\blender.exe'   # Linux/ma
 default_mode = "headless"    # only headless for now: every call is its own `blender -b`
 allow_raw = false            # true enables blender.python: any bpy script in background Blender
 # call_timeout = 600         # seconds one call may take (big renders)
+
+[capcut]
+# drafts_dir = 'C:\Users\<you>\AppData\Local\CapCut\User Data\Projects\com.lveditor.draft'   # this is the default
+ffprobe = "ffprobe"          # or the full path to ffprobe.exe (from ffmpeg); reads the length and size of media files
+allow_raw = false            # true enables capcut.raw: deep-merge any JSON into a draft
